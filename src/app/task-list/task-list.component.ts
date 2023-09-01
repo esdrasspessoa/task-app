@@ -1,6 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TaskService } from '../task.service';
+import { TaskComponent } from '../task/task.component';
+import { TaskComponentInterface } from '../task/task.component.interface';
+
 
 @Component({
   selector: 'app-task-list',
@@ -13,6 +16,8 @@ export class TaskListComponent implements OnInit, OnDestroy {
   newTask: string = '';
   private subscription!: Subscription;
 
+  @ViewChildren(TaskComponent) taskComponents!: QueryList<TaskComponent>;
+
   constructor(private taskService: TaskService ){}
 
   ngOnInit(): void {
@@ -22,6 +27,10 @@ export class TaskListComponent implements OnInit, OnDestroy {
     })
   }
 
+  ngAfterViewInit(): void {
+    // Now you can access taskComponents safely here after they have been initialized
+  }
+  
   ngOnDestroy(): void {
     this.subscription.unsubscribe()
   }
@@ -33,16 +42,19 @@ export class TaskListComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeMarkedTasks(){
-    this.tasks = this.tasks.filter((task, index) => {
-      const taskComponent: any = document.querySelector(`app-task:nth-child(${index + 1})`);
-      if(taskComponent){
-        if(taskComponent.markedForRemoval){
-          return false; // Remove
-        }
+  removeMarkedTasks() {
+    this.tasks = this.tasks.filter((task) => {
+      const taskComponent = this.getTaskComponent(task);
+      if (taskComponent) {
+        return !taskComponent.markedForRemoval;
       }
       return true;
-    })
+    });
+  }
+
+  getTaskComponent(task: string): TaskComponentInterface | undefined {
+    const taskComponent = this.taskComponents.find((component) => component.task === task);
+    return taskComponent;
   }
 
 }
