@@ -2,7 +2,7 @@ import { AfterContentInit, Component, Input, OnChanges, SimpleChanges } from '@a
 
 @Component({
   selector: 'app-task',
-  template: '{{task}}',
+  template: '{{ task }}',
   
 })
 export class TaskComponent implements OnChanges, AfterContentInit{
